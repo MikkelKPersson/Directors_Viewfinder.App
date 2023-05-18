@@ -5,14 +5,12 @@
              x:Class="Directors_Viewfinder.MainPage">
 
     <StackLayout>
-        <!-- Place new controls here -->
-        <Label Text="Welcome to Directors Viewfinder!" 
-               VerticalOptions="CenterAndExpand" 
-               HorizontalOptions="CenterAndExpand" />
-
         <local:CameraView x:Name="CameraView" 
                           HorizontalOptions="FillAndExpand" 
                           VerticalOptions="FillAndExpand" />
+
+        <Button Text="Take Picture" Clicked="OnTakePictureClicked" />
+
     </StackLayout>
 
 </ContentPage>
