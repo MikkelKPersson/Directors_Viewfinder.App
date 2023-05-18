@@ -79,11 +79,11 @@ namespace Directors_Viewfinder.Platforms.Android
                 _camera2View._previewRequestBuilder = camera.CreateCaptureRequest(CameraTemplate.Preview);
 
                 // Set the TextureView's Surface as the target of the CaptureRequest.Builder
-                _camera2View._previewRequestBuilder.AddTarget(_camera2View._textureView.SurfaceTexture);
+                Surface surface = new Surface(_camera2View._textureView.SurfaceTexture);
+                _camera2View._previewRequestBuilder.AddTarget(surface);
 
                 // Create a CameraCaptureSession for the preview
-                camera.CreateCaptureSession(new List<Surface>() { new Surface(_camera2View._textureView.SurfaceTexture) },
-                    new CaptureStateCallback(_camera2View), null);
+                camera.CreateCaptureSession(new List<Surface>() { surface }, new CaptureStateCallback(_camera2View), null);
             }
 
             public override void OnDisconnected(CameraDevice camera)
@@ -126,8 +126,7 @@ namespace Directors_Viewfinder.Platforms.Android
 
                     // Finally, we start displaying the camera preview
                     CaptureRequest previewRequest = _camera2View._previewRequestBuilder.Build();
-                    _camera2View._captureSession.SetRepeatingRequest(previewRequest,
-                        new CaptureCallback(), null);
+                    _camera2View._captureSession.SetRepeatingRequest(previewRequest, new CaptureCallback(), null);
                 }
                 catch (CameraAccessException e)
                 {
@@ -138,6 +137,14 @@ namespace Directors_Viewfinder.Platforms.Android
             public override void OnConfigureFailed(CameraCaptureSession session)
             {
                 // Show toast message if configuration changes failed
+            }
+        }
+
+        private class CaptureCallback : CameraCaptureSession.CaptureCallback
+        {
+            public override void OnCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result)
+            {
+                // You can override other methods here if needed
             }
         }
 

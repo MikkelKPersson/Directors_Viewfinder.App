@@ -1,18 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Directors_Viewfinder"
              x:Class="Directors_Viewfinder.MainPage">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="30,0"
-            VerticalOptions="Center">
+    <StackLayout>
+        <!-- Place new controls here -->
+        <Label Text="Welcome to Directors Viewfinder!" 
+               VerticalOptions="CenterAndExpand" 
+               HorizontalOptions="CenterAndExpand" />
 
-            
-            
-
-        </VerticalStackLayout>
-    </ScrollView>
+        <local:CameraView x:Name="CameraView" />
+    </StackLayout>
 
 </ContentPage>

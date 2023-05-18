@@ -1,33 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Android.Content;
-using Directors_Viewfinder.Platforms.Android;
+﻿using Directors_Viewfinder.Platforms.Android;
 using Directors_Viewfinder;
 using Microsoft.Maui.Controls.Compatibility;
-using Microsoft.Maui.Controls.Platform;
+using Microsoft.Maui.Handlers;
 
 [assembly: ExportRenderer(typeof(CameraView), typeof(CameraViewRenderer))]
 namespace Directors_Viewfinder.Platforms.Android
 {
-    public class CameraViewRenderer : ViewRenderer<CameraView, Camera2View>
+    public class CameraViewRenderer : ViewHandler<CameraView, Camera2View>
     {
-        public CameraViewRenderer(Context context) : base(context)
+        public CameraViewRenderer() : base(Microsoft.Maui.Handlers.ViewHandler.ViewMapper)
         {
         }
 
-        protected override void OnElementChanged(ElementChangedEventArgs<CameraView> e)
+        protected override Camera2View CreatePlatformView()
         {
-            base.OnElementChanged(e);
+            return new Camera2View(Context);
+        }
 
-            if (e.NewElement != null)
-            {
-                // Initialize the native view and set it as the control's native view
-                var camera2View = new Camera2View(Context);
-                SetNativeControl(camera2View);
-            }
+        protected override void ConnectHandler(Camera2View nativeView)
+        {
+            base.ConnectHandler(nativeView);
+            // Additional setup when the native view is connected to the handler
+        }
+
+        protected override void DisconnectHandler(Camera2View nativeView)
+        {
+            base.DisconnectHandler(nativeView);
+            // Additional cleanup when the native view is disconnected from the handler
         }
     }
 }
