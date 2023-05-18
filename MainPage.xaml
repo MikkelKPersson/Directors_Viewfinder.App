@@ -10,7 +10,9 @@
                VerticalOptions="CenterAndExpand" 
                HorizontalOptions="CenterAndExpand" />
 
-        <local:CameraView x:Name="CameraView" />
+        <local:CameraView x:Name="CameraView" 
+                          HorizontalOptions="FillAndExpand" 
+                          VerticalOptions="FillAndExpand" />
     </StackLayout>
 
 </ContentPage>
