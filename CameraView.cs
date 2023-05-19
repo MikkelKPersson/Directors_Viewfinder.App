@@ -2,19 +2,20 @@
 using Directors_Viewfinder.Platforms.Android;
 #endif
 
+using Directors_Viewfinder.Interfaces;
+
 namespace Directors_Viewfinder
 {
-    public class CameraView : View
+    public class CameraView : View, ICameraView
     {
-        // You can add properties and methods here that you want to expose to the shared project
-#if __ANDROID__
         public void TakePicture(string filepath)
         {
-            Task.Run(() =>
+#if __ANDROID__
+            if (Handler is CameraViewRenderer renderer)
             {
-                (Handler as CameraViewRenderer)?.Camera2View.TakePicture(filepath);
-            });
-        }
+                renderer.Camera2View.TakePicture(filepath);
+            }
 #endif
+        }
     }
 }

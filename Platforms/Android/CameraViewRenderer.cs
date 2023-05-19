@@ -2,11 +2,12 @@
 using Directors_Viewfinder;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Handlers;
+using Directors_Viewfinder.Interfaces;
 
 [assembly: ExportRenderer(typeof(CameraView), typeof(CameraViewRenderer))]
 namespace Directors_Viewfinder.Platforms.Android
 {
-    public class CameraViewRenderer : ViewHandler<CameraView, Camera2View>
+    public class CameraViewRenderer : ViewHandler<CameraView, Camera2View>, ICameraView
     {
         private Camera2View _camera2View;
 
@@ -35,6 +36,12 @@ namespace Directors_Viewfinder.Platforms.Android
 
         // Expose the Camera2View instance
         public Camera2View Camera2View => _camera2View;
+
+        // Implement the TakePicture method from the ICameraView interface
+        public void TakePicture(string filepath)
+        {
+            _camera2View?.TakePicture(filepath);
+        }
     }
 }
 
