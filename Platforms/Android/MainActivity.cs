@@ -9,30 +9,6 @@ namespace Directors_Viewfinder;
 [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public class MainActivity : MauiAppCompatActivity
 {
-    /*
-    protected override void OnResume()
-    {
-        base.OnResume();
-
-        List<string> permissionsNeeded = new List<string>();
-
-        if (CheckSelfPermission(Manifest.Permission.Camera) != Permission.Granted)
-        {
-            permissionsNeeded.Add(Manifest.Permission.Camera);
-        }
-
-        if (CheckSelfPermission(Manifest.Permission.WriteExternalStorage) != Permission.Granted)
-        {
-            permissionsNeeded.Add(Manifest.Permission.WriteExternalStorage);
-        }
-
-        if (permissionsNeeded.Any())
-        {
-            RequestPermissions(permissionsNeeded.ToArray(), 0);
-        }
-    }
-    */
-
     public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
     {
         base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -65,6 +41,28 @@ public class MainActivity : MauiAppCompatActivity
                 }
             }
         }
+    }
+
+    protected override void OnPause()
+    {
+        base.OnPause();
+
+        // Log a message
+        System.Diagnostics.Debug.WriteLine("App is going into the background");
+
+        // Close the camera
+        // You'll need to access your Camera2View instance here
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        // Log a message
+        System.Diagnostics.Debug.WriteLine("Activity is being destroyed");
+
+        // Close the camera
+        // You'll need to access your Camera2View instance here
     }
 
 }

@@ -52,6 +52,7 @@ namespace Directors_Viewfinder.Platforms.Android
 
         public void OpenCamera()
         {
+            System.Diagnostics.Debug.WriteLine("Camera Opened");
             // Open the camera
             _cameraManager.OpenCamera(_cameraId, new CameraStateCallback(this), null);
         }
@@ -86,6 +87,12 @@ namespace Directors_Viewfinder.Platforms.Android
 
             public override void OnOpened(CameraDevice camera)
             {
+                if (camera == null)
+                {
+                    // Log an error or throw an exception
+                    return;
+                }
+
                 // Camera opened successfully. Now we can start the preview
                 _camera2View._cameraDevice = camera;
 
@@ -168,6 +175,7 @@ namespace Directors_Viewfinder.Platforms.Android
             {
                 // Show toast message if configuration changes failed
             }
+            
         }
 
         private class CaptureCallback : CameraCaptureSession.CaptureCallback
@@ -204,12 +212,15 @@ namespace Directors_Viewfinder.Platforms.Android
 
             public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
             {
+                System.Diagnostics.Debug.WriteLine("SurfaceTextureAvailable");
                 // The surface is ready, open the camera
                 _camera2View.OpenCamera();
+
             }
 
             public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
             {
+                System.Diagnostics.Debug.WriteLine("SurfaceTextureDestroyed");
                 return true;
             }
 
@@ -294,13 +305,21 @@ namespace Directors_Viewfinder.Platforms.Android
             // Create a list of surfaces
             List<Surface> surfaces = new List<Surface>();
             surfaces.Add(readerSurface);
-
+            System.Diagnostics.Debug.WriteLine("List created...");
             // Create a CameraCaptureSession for the preview
             _cameraDevice.CreateCaptureSession(surfaces, new CaptureStateCallback(this), handler);
 
             // Capture the image
             System.Diagnostics.Debug.WriteLine("Capturing image...");
-            _captureSession.Capture(captureBuilder.Build(), new CameraCaptureListener(), handler);
+            try
+            {
+                _captureSession.Capture(captureBuilder.Build(), new CameraCaptureListener(), handler);
+            }
+            catch (IllegalStateException ex)
+            {
+                // Log the exception and handle it appropriately
+            }
+
         }
 
 
