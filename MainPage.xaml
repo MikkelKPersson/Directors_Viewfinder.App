@@ -5,12 +5,21 @@
              x:Class="Directors_Viewfinder.MainPage">
 
     <StackLayout>
+<<<<<<< HEAD
         <local:CameraView x:Name="CameraView" 
                           HorizontalOptions="FillAndExpand" 
                           VerticalOptions="FillAndExpand" />
 
         <Button Text="Take Picture" Clicked="OnTakePictureClicked" />
 
+=======
+        <!-- Place new controls here -->
+        <Label Text="Welcome to Directors Viewfinder!" 
+               VerticalOptions="CenterAndExpand" 
+               HorizontalOptions="CenterAndExpand" />
+
+        <local:CameraView x:Name="CameraView" />
+>>>>>>> parent of 9299287 (App working with camera2 camera view)
     </StackLayout>
 
 </ContentPage>
