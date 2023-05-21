@@ -19,6 +19,9 @@
                HorizontalOptions="CenterAndExpand" />
 
         <local:CameraView x:Name="CameraView" />
+<<<<<<< HEAD
+>>>>>>> parent of 9299287 (App working with camera2 camera view)
+=======
 >>>>>>> parent of 9299287 (App working with camera2 camera view)
     </StackLayout>
 

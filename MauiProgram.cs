@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if __ANDROID__
 using Directors_Viewfinder.Platforms.Android;
 #endif
+=======
+>>>>>>> parent of 9299287 (App working with camera2 camera view)
 =======
 >>>>>>> parent of 9299287 (App working with camera2 camera view)
 
@@ -16,6 +19,7 @@ public static class MauiProgram
 		builder
 			.UseMauiApp<App>()
 <<<<<<< HEAD
+<<<<<<< HEAD
             .ConfigureMauiHandlers(handlers =>
             {
 #if __ANDROID__
@@ -23,6 +27,9 @@ public static class MauiProgram
 #endif
 			})
             .ConfigureFonts(fonts =>
+=======
+			.ConfigureFonts(fonts =>
+>>>>>>> parent of 9299287 (App working with camera2 camera view)
 =======
 			.ConfigureFonts(fonts =>
 >>>>>>> parent of 9299287 (App working with camera2 camera view)
