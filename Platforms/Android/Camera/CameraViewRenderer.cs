@@ -2,9 +2,10 @@
 using Directors_Viewfinder;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Handlers;
+using Directors_Viewfinder.Platforms.Android.Camera;
 
 [assembly: ExportRenderer(typeof(CameraView), typeof(CameraViewRenderer))]
-namespace Directors_Viewfinder.Platforms.Android
+namespace Directors_Viewfinder.Platforms.Android.Camera
 {
     public class CameraViewRenderer : ViewHandler<CameraView, Camera2View>
     {

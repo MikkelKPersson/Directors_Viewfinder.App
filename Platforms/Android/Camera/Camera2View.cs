@@ -5,7 +5,7 @@ using Android.Hardware.Camera2;
 using static Android.Hardware.Camera2.CameraCaptureSession;
 using static Android.Views.TextureView;
 
-namespace Directors_Viewfinder.Platforms.Android
+namespace Directors_Viewfinder.Platforms.Android.Camera
 {
     public class Camera2View : ViewGroup
     {

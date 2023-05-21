@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Directors_Viewfinder.Platforms.Android;
+using Directors_Viewfinder.Platforms.Android.Camera;
 
 namespace Directors_Viewfinder;
 
