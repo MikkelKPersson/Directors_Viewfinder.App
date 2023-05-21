@@ -1,7 +1,7 @@
 ﻿using Android.Hardware.Camera2;
 using Directors_Viewfinder.Platforms.Android.Camera;
 
-namespace Directors_Viewfinder.Droid.Camera
+namespace Directors_Viewfinder.android.Camera
 {
     public class CameraCaptureSessionCallback : CameraCaptureSession.StateCallback
     {
