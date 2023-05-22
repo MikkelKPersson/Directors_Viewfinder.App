@@ -1,21 +1,9 @@
-﻿#if __ANDROID__
-using Directors_Viewfinder.Platforms.Android;
-#endif
-
-using Directors_Viewfinder.Interfaces;
+﻿using Microsoft.Maui.Controls;
 
 namespace Directors_Viewfinder
 {
-    public class CameraView : View, ICameraView
+    public class CameraView : View
     {
-        public void TakePicture(string filepath)
-        {
-#if __ANDROID__
-            if (Handler is CameraViewRenderer renderer)
-            {
-                renderer.Camera2View.TakePicture(filepath);
-            }
-#endif
-        }
+        // You can add properties and methods here that you want to expose to the shared project
     }
 }
