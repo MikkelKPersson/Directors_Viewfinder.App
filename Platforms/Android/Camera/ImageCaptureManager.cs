@@ -2,6 +2,8 @@
 using Android.Hardware.Camera2;
 using Android.Media;
 using Android.Views;
+using Android.OS;
+using Android.Hardware.Camera2.Params;
 
 namespace Directors_Viewfinder.Android.Camera
 {
@@ -20,11 +22,20 @@ namespace Directors_Viewfinder.Android.Camera
             _imageReader = ImageReader.NewInstance(width, height, format, maxImages);
         }
 
-        public void TakePicture(CameraDevice cameraDevice, Surface surface, CaptureRequest.Builder requestBuilder, CameraCaptureSession.CaptureCallback captureCallback, Handler handler)
+        public static void TakePicture(CameraDevice cameraDevice, Surface surface, CaptureRequest.Builder requestBuilder, Handler handler)
         {
             requestBuilder.AddTarget(surface);
-            cameraDevice.CreateCaptureSession(new List<Surface>() { surface }, new CameraCaptureSessionCallback(), handler);
+            OutputConfiguration outputConfiguration = new(surface);
+            IList<OutputConfiguration> configurations = new List<OutputConfiguration>() { outputConfiguration };
+            SessionConfiguration sessionConfiguration = new((int)SessionType.Regular, configurations, new HandlerExecutor(handler), new ImageCaptureSessionCallback());
+            cameraDevice.CreateCaptureSession(sessionConfiguration);
         }
+
+
+
+
+
+
 
         public void DisposeImageReader()
         {
@@ -32,4 +43,33 @@ namespace Directors_Viewfinder.Android.Camera
             _imageReader = null;
         }
     }
+
+    public class SimpleCaptureSessionCallback : CameraCaptureSession.StateCallback
+    {
+        public override void OnConfigured(CameraCaptureSession session)
+        {
+            // The camera is already closed
+        }
+
+        public override void OnConfigureFailed(CameraCaptureSession session)
+        {
+            // Show toast message if configuration changes failed
+        }
+    }
+
+    public class ImageCaptureSessionCallback : CameraCaptureSession.StateCallback
+    {
+        // Override methods as needed
+        public override void OnConfigured(CameraCaptureSession session)
+        {
+            // Implementation here
+        }
+
+        public override void OnConfigureFailed(CameraCaptureSession session)
+        {
+            // Implementation here
+        }
+    }
+
+
 }
