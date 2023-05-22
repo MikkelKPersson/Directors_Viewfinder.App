@@ -4,15 +4,48 @@
              xmlns:local="clr-namespace:Directors_Viewfinder"
              x:Class="Directors_Viewfinder.MainPage">
 
-    <StackLayout>
-        <!-- Place new controls here -->
-        <Label Text="Welcome to Directors Viewfinder!" 
-               VerticalOptions="CenterAndExpand" 
-               HorizontalOptions="CenterAndExpand" />
-
+    <VerticalStackLayout>
+        <HorizontalStackLayout>
         <local:CameraView x:Name="CameraView" 
-                          HorizontalOptions="FillAndExpand" 
-                          VerticalOptions="FillAndExpand" />
-    </StackLayout>
+                              HeightRequest="250"
+                              WidthRequest="800"/>
+            <VerticalStackLayout>
+                <Button Text="+"
+                        Command="{Binding FocalLengthUpCommand}"
+                        CommandParameter="{x:Reference CameraView}"/>
+                <Button Text="-"
+                        Command="{Binding FocalLengthDownCommand}"
+                        CommandParameter="{x:Reference CameraView}"/>
+                <Label Text="Focal Length" />
+                <Label Text="{Binding FocalLength, StringFormat='{0:F2} mm'}" />
+
+                
+
+
+
+            </VerticalStackLayout>
+        </HorizontalStackLayout>
+    
+        <HorizontalStackLayout>
+            <Button Text="Settings"
+                        Command="{Binding SettingsCommand}"
+                        CommandParameter="{x:Reference CameraView}"/>
+            <Button Text="Gallery"
+                        Command="{Binding GalleryCommand}"
+                        CommandParameter="{x:Reference CameraView}"/>
+            <Button Text="Take Photo"
+                        Command="{Binding TakePhotoCommand}"
+                        CommandParameter="{x:Reference CameraView}"/>
+            <Button Text="Record"
+                        Command="{Binding RecordVideoCommand}"
+                        CommandParameter="{x:Reference CameraView}"/>
+
+
+        </HorizontalStackLayout>
+
+
+        
+
+    </VerticalStackLayout>
 
 </ContentPage>
