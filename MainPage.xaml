@@ -26,19 +26,20 @@
             </VerticalStackLayout>
         </HorizontalStackLayout>
     
-        <HorizontalStackLayout>
+        <HorizontalStackLayout HorizontalOptions="End">
             <Button Text="Settings"
-                        Command="{Binding SettingsCommand}"
-                        CommandParameter="{x:Reference CameraView}"/>
+                    Command="{Binding SettingsCommand}"
+                    CommandParameter="{x:Reference CameraView}" />
             <Button Text="Gallery"
-                        Command="{Binding GalleryCommand}"
-                        CommandParameter="{x:Reference CameraView}"/>
+                    Command="{Binding GalleryCommand}"
+                    CommandParameter="{x:Reference CameraView}"/>
             <Button Text="Take Photo"
-                        Command="{Binding TakePhotoCommand}"
-                        CommandParameter="{x:Reference CameraView}"/>
+                    Command="{Binding TakePhotoCommand}"
+                    CommandParameter="{x:Reference CameraView}" />
             <Button Text="Record"
-                        Command="{Binding RecordVideoCommand}"
-                        CommandParameter="{x:Reference CameraView}"/>
+                    Command="{Binding RecordVideoCommand}"
+                    CommandParameter="{x:Reference CameraView}" />
+
 
 
         </HorizontalStackLayout>
