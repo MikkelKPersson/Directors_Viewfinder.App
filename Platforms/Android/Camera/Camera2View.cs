@@ -31,7 +31,10 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
 
         protected override void OnLayout(bool changed, int l, int t, int r, int b)
         {
-            _textureView.Layout(0, 0, r - l, b - t);
+            int width = r - l;
+            int height = b - t;
+            _textureView.Layout(0, 0, width, height);
+            ConfigureTransform(width, height);
         }
 
         public void OpenCamera()
@@ -82,7 +85,5 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
             }
             _textureView.SetTransform(matrix);
         }
-
     }
 }
-
