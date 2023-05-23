@@ -18,6 +18,7 @@ namespace Directors_Viewfinder.Android.Camera
         {
             // The surface is ready, open the camera
             _camera2View.OpenCamera();
+            _camera2View.ConfigureTransform(width, height);
         }
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
@@ -27,10 +28,13 @@ namespace Directors_Viewfinder.Android.Camera
 
         public void OnSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height)
         {
+            _camera2View.ConfigureTransform(width, height);
         }
 
         public void OnSurfaceTextureUpdated(SurfaceTexture surface)
         {
         }
+
+
     }
 }
