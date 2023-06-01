@@ -4,6 +4,7 @@ using Android.Media;
 using Android.Views;
 using Android.OS;
 using Android.Hardware.Camera2.Params;
+using Directors_Viewfinder.Platforms.Android.Camera;
 
 namespace Directors_Viewfinder.Android.Camera
 {

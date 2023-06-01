@@ -29,6 +29,9 @@
                         CommandParameter="{x:Reference CameraView}"/>
                 <Label Text="Focal Length" />
                 <Label Text="{Binding FocalLength, StringFormat='{0:F2} mm'}" />
+                <Button x:Name="SwitchCameraButton" Text="Switch Camera" Grid.Column="1" Grid.Row="1" />
+
+
             </VerticalStackLayout>
         </StackLayout>
 

@@ -6,34 +6,124 @@ using Android.Views;
 using Java.Lang;
 using static Android.Hardware.Camera2.CameraCaptureSession;
 
-namespace Directors_Viewfinder.Android.Camera
+namespace Directors_Viewfinder.Platforms.Android.Camera
 {
     public class CameraStateManager
     {
         private CameraDevice _cameraDevice;
         private CameraCaptureSession _captureSession;
         private CaptureRequest.Builder _previewRequestBuilder;
+        private readonly object _lock = new();
+
+        private List<string> _cameraIds;
+        private int _currentCameraIndex;
+
+
+        private CameraManager _cameraManager;
+        private Handler _handler;
+        private SurfaceTexture _surfaceTexture;
+
+        private static CameraStateManager _instance;
+
+        private CameraStateManager() { } // Make the constructor private
+
+        // Add a static factory method
+        public static CameraStateManager Create(CameraManager cameraManager, Handler handler, SurfaceTexture surfaceTexture)
+        {
+            var manager = new CameraStateManager();
+            manager.Initialize(cameraManager, handler, surfaceTexture);
+            return manager;
+        }
+
+        public void SetSurfaceTexture(SurfaceTexture surfaceTexture)
+        {
+            _surfaceTexture = surfaceTexture;
+        }
 
         public CameraDevice CameraDevice
         {
-            get { return _cameraDevice; }
-            set { _cameraDevice = value; }
+            get
+            {
+                lock (_lock)
+                {
+                    return _cameraDevice;
+                }
+            }
+            set
+            {
+                lock (_lock)
+                {
+                    _cameraDevice = value;
+                }
+            }
         }
 
         public CameraCaptureSession CaptureSession
         {
-            get { return _captureSession; }
-            set { _captureSession = value; }
+            get
+            {
+                lock (_lock)
+                {
+                    return _captureSession;
+                }
+            }
+            set
+            {
+                lock (_lock)
+                {
+                    _captureSession = value;
+                }
+            }
         }
 
         public CaptureRequest.Builder PreviewRequestBuilder
         {
-            get { return _previewRequestBuilder; }
-            set { _previewRequestBuilder = value; }
+            get
+            {
+                lock (_lock)
+                {
+                    return _previewRequestBuilder;
+                }
+            }
+            set
+            {
+                lock (_lock)
+                {
+                    _previewRequestBuilder = value;
+                }
+            }
         }
+
+
+
+        public static CameraStateManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new CameraStateManager();
+                }
+                return _instance;
+            }
+        }
+        public void Initialize(CameraManager cameraManager, Handler handler, SurfaceTexture surfaceTexture)
+        {
+            _cameraManager = cameraManager;
+            _handler = handler;
+            _surfaceTexture = surfaceTexture;
+
+            _cameraIds = new List<string>(cameraManager.GetCameraIdList());
+            Console.WriteLine($"Camera IDs: {_cameraIds.Count}");
+            _currentCameraIndex = 0;
+        }
+
+
 
         public static void OpenCamera(CameraManager cameraManager, string cameraId, CameraDevice.StateCallback stateCallback, Handler handler)
         {
+            Console.WriteLine("Opening camera: " + cameraId);
+
             cameraManager.OpenCamera(cameraId, stateCallback, handler);
         }
 
@@ -46,13 +136,69 @@ namespace Directors_Viewfinder.Android.Camera
             _cameraDevice = null;
         }
 
-        public static void CreateCaptureSession(CameraDevice cameraDevice, Surface surface, CameraCaptureSession.StateCallback stateCallback, Handler handler)
+        public void SwitchCamera()
         {
-            OutputConfiguration outputConfiguration = new(surface);
+            lock (_lock)
+            {
+                //this.Initialize(_cameraManager, _handler, _surfaceTexture);
+                // Check if _cameraIds is null or empty
+                if (_cameraIds == null || _cameraIds.Count == 0)
+                {
+                    // Log an error message or throw an exception
+                    Console.WriteLine("Error: Camera IDs not initialized");
+                    return;
+                }
+
+                // Close the current camera
+                CloseCamera();
+
+                // Switch to the next camera
+                _currentCameraIndex = (_currentCameraIndex + 1) % _cameraIds.Count;
+                string newCameraId = _cameraIds[_currentCameraIndex];
+
+                // Open the new camera
+                OpenCamera(_cameraManager, newCameraId, new CameraStateCallback(this, _surfaceTexture), _handler);
+            }
+        }
+
+
+
+
+        public static void CreateCaptureSession(CameraDevice cameraDevice,
+                                                Surface target,
+                                                CameraCaptureSession.StateCallback stateCallback,
+                                                Handler handler)
+        {
+            OutputConfiguration outputConfiguration = new(target);
             IList<OutputConfiguration> configurations = new List<OutputConfiguration>() { outputConfiguration };
             cameraDevice.CreateCaptureSessionByOutputConfigurations(configurations,
                                                                     stateCallback,
                                                                     handler);
+        }
+
+        public void InitializeCamera(CameraDevice camera, SurfaceTexture surfaceTexture)
+        {
+            if (surfaceTexture == null)
+            {
+                // SurfaceTexture is not ready, return and try again later
+                Console.WriteLine("Error: SurfaceTexture is null");
+                return;
+            }
+
+            lock (_lock)
+            {
+                _cameraDevice = camera;
+
+                // Create a CaptureRequest.Builder for the preview
+                _previewRequestBuilder = camera.CreateCaptureRequest(CameraTemplate.Preview);
+
+                // Set the TextureView's Surface as the target of the CaptureRequest.Builder
+                Surface target = new(surfaceTexture);
+                _previewRequestBuilder.AddTarget(target);
+
+                // Create a CameraCaptureSession for the preview
+                CreateCaptureSession(camera, target, new CaptureStateCallback(this), null);
+            }
         }
 
 
@@ -121,17 +267,8 @@ namespace Directors_Viewfinder.Android.Camera
         public override void OnOpened(CameraDevice camera)
         {
             // Camera opened successfully. Now we can start the preview
-            _cameraStateManager.CameraDevice = camera;
-
-            // Create a CaptureRequest.Builder for the preview
-            _cameraStateManager.PreviewRequestBuilder = camera.CreateCaptureRequest(CameraTemplate.Preview);
-
-            // Set the TextureView's Surface as the target of the CaptureRequest.Builder
-            Surface surface = new(_surfaceTexture);
-            _cameraStateManager.PreviewRequestBuilder.AddTarget(surface);
-
-            // Create a CameraCaptureSession for the preview
-            CameraStateManager.CreateCaptureSession(camera, surface, new CaptureStateCallback(_cameraStateManager), null);
+            Console.WriteLine("OnOpened called");  
+            _cameraStateManager.InitializeCamera(camera, _surfaceTexture);
         }
 
         public override void OnDisconnected(CameraDevice camera)

@@ -16,10 +16,17 @@ namespace Directors_Viewfinder.Android.Camera
 
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
-            // The surface is ready, open the camera
-            _camera2View.OpenCamera();
+            // Set the SurfaceTexture in the CameraStateManager
+            _camera2View.CameraStateManager.SetSurfaceTexture(surface);
+
+            // Configure the transform for the camera preview
             _camera2View.ConfigureTransform(width, height);
+
+            // Now you can open the camera
+            _camera2View.OpenCamera();
         }
+
+
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
         {

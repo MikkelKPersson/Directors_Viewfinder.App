@@ -7,6 +7,7 @@ using static Android.Views.TextureView;
 using Directors_Viewfinder.Android.Camera;
 using RectF = Android.Graphics.RectF;
 using Android.Runtime;
+using Android.OS;
 
 namespace Directors_Viewfinder.Platforms.Android.Camera
 {
@@ -15,7 +16,8 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
         private readonly CameraManager _cameraManager;
         private readonly string _cameraId;
 
-        private readonly CameraStateManager _cameraStateManager = new();
+        public CameraStateManager CameraStateManager { get; } = CameraStateManager.Instance;
+
 
         private readonly TextureView _textureView;
 
@@ -27,7 +29,15 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
             AddView(_textureView);
 
             _textureView.SurfaceTextureListener = new SurfaceTextureListener(this);
+
+            // Set the SurfaceTexture in the CameraStateManager
+            CameraStateManager.SetSurfaceTexture(_textureView.SurfaceTexture);
+
+
+            // Initialize the CameraStateManager
+            CameraStateManager.Initialize(_cameraManager, new Handler(), _textureView.SurfaceTexture);
         }
+
 
         protected override void OnLayout(bool changed, int l, int t, int r, int b)
         {
@@ -40,14 +50,14 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
         public void OpenCamera()
         {
             // Open the camera
-            CameraStateManager.OpenCamera(_cameraManager, _cameraId, new CameraStateCallback(_cameraStateManager, _textureView.SurfaceTexture), null);
+            CameraStateManager.OpenCamera(_cameraManager, _cameraId, new CameraStateCallback(CameraStateManager, _textureView.SurfaceTexture), null);
         }
 
 
         public void CloseCamera()
         {
             // Close the camera and stop the preview
-            _cameraStateManager.CloseCamera();
+            CameraStateManager.CloseCamera();
         }
 
         protected override void OnDetachedFromWindow()
@@ -58,6 +68,7 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
             CloseCamera();
         }
 
+ 
         public void ConfigureTransform(int viewWidth, int viewHeight)
         {
             if (_textureView == null || _textureView.SurfaceTexture == null)
