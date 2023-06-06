@@ -22,13 +22,16 @@
         <StackLayout Grid.Column="1" Grid.Row="0">
             <VerticalStackLayout>
                 <Button Text="+"
+                        x:Name="FocalLengthUpButton"
                         Command="{Binding FocalLengthUpCommand}"
                         CommandParameter="{x:Reference CameraView}"/>
                 <Button Text="-"
+                        x:Name="FocalLengthDownButton"
                         Command="{Binding FocalLengthDownCommand}"
                         CommandParameter="{x:Reference CameraView}"/>
                 <Label Text="Focal Length" />
-                <Label Text="{Binding FocalLength, StringFormat='{0:F2} mm'}" />
+                <Label Text="{Binding FocalLength, StringFormat='{0:F2} mm'}"
+                       x:Name="FocalLengthLabel"/>
                 <Button x:Name="SwitchCameraButton" Text="Switch Camera" Grid.Column="1" Grid.Row="1" />
 
 
