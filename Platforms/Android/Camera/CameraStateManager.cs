@@ -117,6 +117,7 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
 
             // Initialize CameraUtilities
             _cameraUtilities = new CameraUtilities(cameraManager);
+            _cameraUtilities.PrintCameraInfo();
 
             _cameraIds = new List<string>(_cameraUtilities.GetBackFacingCameraIds());
             _currentCameraIndex = 0;
