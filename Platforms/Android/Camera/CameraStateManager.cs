@@ -2,6 +2,7 @@
 using Android.Hardware.Camera2;
 using Android.Hardware.Camera2.Params;
 using Android.OS;
+using Android.Util;
 using Android.Views;
 using Java.Lang;
 using static Android.Hardware.Camera2.CameraCaptureSession;
@@ -22,6 +23,7 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
         private CameraManager _cameraManager;
         private Handler _handler;
         private SurfaceTexture _surfaceTexture;
+        private CameraUtilities _cameraUtilities;
 
         private static CameraStateManager _instance;
 
@@ -113,8 +115,10 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
             _handler = handler;
             _surfaceTexture = surfaceTexture;
 
-            _cameraIds = new List<string>(cameraManager.GetCameraIdList());
-            Console.WriteLine($"Camera IDs: {_cameraIds.Count}");
+            // Initialize CameraUtilities
+            _cameraUtilities = new CameraUtilities(cameraManager);
+
+            _cameraIds = new List<string>(_cameraUtilities.GetBackFacingCameraIds());
             _currentCameraIndex = 0;
         }
 
@@ -158,7 +162,9 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
 
                 // Open the new camera
                 OpenCamera(_cameraManager, newCameraId, new CameraStateCallback(this, _surfaceTexture), _handler);
+                Log.Info("CameraStateManager", $"Switched to camera: {_currentCameraIndex}");
             }
+
         }
 
 
