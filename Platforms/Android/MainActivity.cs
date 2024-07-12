@@ -1,9 +1,12 @@
 ﻿using Android;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
+using Android.Hardware.Camera2;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
+using Directors_Viewfinder.Platforms.Android.Camera;
 using View = Android.Views.View;
 
 namespace Directors_Viewfinder;
@@ -35,7 +38,34 @@ public class MainActivity : MauiAppCompatActivity
             newUiOptions |= (int)SystemUiFlags.ImmersiveSticky;
 
             decorView.SystemUiVisibility = (StatusBarVisibility)newUiOptions;
+
         }
+        if (CheckSelfPermission(Manifest.Permission.Camera) != Permission.Granted)
+        {
+            RequestPermissions(new string[] { Manifest.Permission.Camera }, 0);
+        }
+
+        // Obtain the CameraManager from the system service
+        CameraManager cameraManager = (CameraManager)GetSystemService(Context.CameraService);
+
+        // Pass the CameraManager to the CameraUtilities constructor
+        CameraUtilities cameraUtilities = new CameraUtilities(cameraManager);
+
+        CameraAvailabilityCallback availabilityCallback = new CameraAvailabilityCallback();
+
+        availabilityCallback.CameraAvailable += (sender, cameraId) =>
+        {
+            // Camera is available, react accordingly
+        };
+
+        availabilityCallback.CameraUnavailable += (sender, cameraId) =>
+        {
+            // Camera is unavailable, react accordingly
+        };
+
+        cameraUtilities.RegisterAvailabilityCallback(availabilityCallback);
+
+
     }
 
     protected override void OnResume()

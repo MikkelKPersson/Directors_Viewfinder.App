@@ -1,6 +1,8 @@
 ﻿using Android.Hardware.Camera2;
-using Android.OS;
+using Android.Content;
 using Android.Util;
+using System.Collections.Generic;
+using Android.OS;
 using SizeF = Android.Util.SizeF;
 
 namespace Directors_Viewfinder.Platforms.Android.Camera
@@ -15,53 +17,86 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
             _cameraManager = cameraManager;
         }
 
+        public bool IsCameraAvailable(string cameraId)
+        {
+            try
+            {
+                var cameraIds = _cameraManager.GetCameraIdList();
+                foreach (var id in cameraIds)
+                {
+                    if (id.Equals(cameraId))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (CameraAccessException e)
+            {
+                Log.Error("CameraUtilities", "Camera access exception: " + e);
+            }
+            return false;
+        }
+
+        public void RegisterAvailabilityCallback(CameraManager.AvailabilityCallback callback)
+        {
+            _cameraManager.RegisterAvailabilityCallback(callback, null);
+        }
+
         public List<string> GetBackFacingCameraIds()
         {
             var backFacingCameraIds = new List<string>();
             var cameraIds = _cameraManager.GetCameraIdList();
-
             Log.Info("CameraUtilities", $"Available cameras: {string.Join(", ", cameraIds)}");
 
             foreach (var cameraId in cameraIds)
             {
                 var characteristics = _cameraManager.GetCameraCharacteristics(cameraId);
                 var facing = (LensFacing)((Java.Lang.Integer)characteristics.Get(CameraCharacteristics.LensFacing)).IntValue();
-
                 if (facing == LensFacing.Back)
                 {
-                    if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
+                    var isLogical = characteristics.Get(CameraCharacteristics.RequestAvailableCapabilities)
+                                        .ToArray<RequestAvailableCapabilities>()
+                                        .Contains(RequestAvailableCapabilities.LogicalMultiCamera);
+
+                    if (isLogical && Build.VERSION.SdkInt >= BuildVersionCodes.P)
                     {
-                        var capabilities = characteristics.Get(CameraCharacteristics.RequestAvailableCapabilities);
-                        var capabilitiesList = capabilities.ToArray<RequestAvailableCapabilities>();
-
-                        if (capabilitiesList.Contains(RequestAvailableCapabilities.LogicalMultiCamera))
+                        var physicalCameraIds = characteristics.PhysicalCameraIds;
+                        foreach (var physicalCameraId in physicalCameraIds)
                         {
-                            var physicalCameraIds = characteristics.PhysicalCameraIds;
-
-                            foreach (var physicalCameraId in physicalCameraIds)
+                            if (!backFacingCameraIds.Contains(physicalCameraId))
                             {
-                                if (!backFacingCameraIds.Contains(physicalCameraId))
-                                {
-                                    backFacingCameraIds.Add(physicalCameraId);
-                                }
+                                backFacingCameraIds.Add(physicalCameraId);
+                                Log.Info("CameraUtilities", $"Physical back-facing camera: {physicalCameraId}");
+                                LogCameraCharacteristics(characteristics, physicalCameraId);
                             }
-                        }
-                        else
-                        {
-                            backFacingCameraIds.Add(cameraId);
                         }
                     }
                     else
                     {
                         backFacingCameraIds.Add(cameraId);
+                        Log.Info("CameraUtilities", $"Back-facing camera: {cameraId}");
+                        LogCameraCharacteristics(characteristics, cameraId);
                     }
                 }
-
-                Log.Info("CameraUtilities", $"Selected camera: {cameraId}");
             }
-            Log.Info("CameraUtilities", $"Available cameras: {string.Join(", ", backFacingCameraIds)}");
+            Log.Info("CameraUtilities", $"Detected back-facing cameras: {string.Join(", ", backFacingCameraIds)}");
             return backFacingCameraIds;
         }
+
+        private void LogCameraCharacteristics(CameraCharacteristics characteristics, string cameraId)
+        {
+            var sensorSize = (SizeF)characteristics.Get(CameraCharacteristics.SensorInfoPhysicalSize);
+            var focalLengths = (float[])characteristics.Get(CameraCharacteristics.LensInfoAvailableFocalLengths);
+            foreach (var focalLength in focalLengths)
+            {
+                var fullFrameEquivalentFocalLength = CalculateFullFrameEquivalentFocalLength(cameraId, focalLength);
+                Log.Info("CameraUtilities", $"Camera ID: {cameraId}, Sensor Size: {sensorSize.Width}mm x {sensorSize.Height}mm, Focal Length: {focalLength}mm, Full Frame Equivalent Focal Length: {fullFrameEquivalentFocalLength}mm");
+            }
+        }
+
+
+
+
         public float CalculateFullFrameEquivalentFocalLength(string cameraId, float actualFocalLength)
         {
             var characteristics = _cameraManager.GetCameraCharacteristics(cameraId);

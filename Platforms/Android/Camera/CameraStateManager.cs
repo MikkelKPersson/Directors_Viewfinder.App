@@ -5,7 +5,6 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using Java.Lang;
-using static Android.Hardware.Camera2.CameraCaptureSession;
 
 namespace Directors_Viewfinder.Platforms.Android.Camera
 {
@@ -118,8 +117,6 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
             // Initialize CameraUtilities
             _cameraUtilities = new CameraUtilities(cameraManager);
             _cameraUtilities.PrintCameraInfo();
-
-            _cameraIds = new List<string>(_cameraUtilities.GetBackFacingCameraIds());
             _currentCameraIndex = 0;
         }
 
@@ -145,28 +142,64 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
         {
             lock (_lock)
             {
-                //this.Initialize(_cameraManager, _handler, _surfaceTexture);
-                // Check if _cameraIds is null or empty
                 if (_cameraIds == null || _cameraIds.Count == 0)
                 {
-                    // Log an error message or throw an exception
-                    Console.WriteLine("Error: Camera IDs not initialized");
+                    Log.Error("CameraStateManager", "Error: Camera IDs not initialized");
                     return;
                 }
 
-                // Close the current camera
-                CloseCamera();
+                if (_surfaceTexture == null)
+                {
+                    Log.Error("CameraStateManager", "Error: SurfaceTexture is null");
+                    return;
+                }
 
-                // Switch to the next camera
+                CloseCamera();
+                int previousCameraIndex = _currentCameraIndex;
                 _currentCameraIndex = (_currentCameraIndex + 1) % _cameraIds.Count;
                 string newCameraId = _cameraIds[_currentCameraIndex];
 
-                // Open the new camera
-                OpenCamera(_cameraManager, newCameraId, new CameraStateCallback(this, _surfaceTexture), _handler);
-                Log.Info("CameraStateManager", $"Switched to camera: {_currentCameraIndex}");
+                if (!string.IsNullOrEmpty(newCameraId))
+                {
+                    try
+                    {
+                        var characteristics = _cameraManager.GetCameraCharacteristics(newCameraId);
+                        if (characteristics != null)
+                        {
+                            OpenCamera(_cameraManager, newCameraId, new CameraStateCallback(this, _surfaceTexture), _handler);
+                            Log.Info("CameraStateManager", $"Switched to camera: {_currentCameraIndex} with ID: {newCameraId}");
+                        }
+                        else
+                        {
+                            Log.Error("CameraStateManager", $"Camera characteristics for ID {newCameraId} not found");
+                            _currentCameraIndex = previousCameraIndex;
+                        }
+                    }
+                    catch (CameraAccessException ex)
+                    {
+                        Log.Error("CameraStateManager", $"Failed to switch to camera: {newCameraId}, Exception: {ex.Message}");
+                        _currentCameraIndex = previousCameraIndex;
+                        // Re-initialize the previous camera
+                        OpenCamera(_cameraManager, _cameraIds[_currentCameraIndex], new CameraStateCallback(this, _surfaceTexture), _handler);
+                    }
+                }
+                else
+                {
+                    Log.Error("CameraStateManager", $"Invalid camera ID: {newCameraId}");
+                    _currentCameraIndex = previousCameraIndex;
+                    // Re-initialize the previous camera
+                    OpenCamera(_cameraManager, _cameraIds[_currentCameraIndex], new CameraStateCallback(this, _surfaceTexture), _handler);
+                }
             }
-
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -274,7 +307,7 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
         public override void OnOpened(CameraDevice camera)
         {
             // Camera opened successfully. Now we can start the preview
-            Console.WriteLine("OnOpened called");  
+            Console.WriteLine("OnOpened called");
             _cameraStateManager.InitializeCamera(camera, _surfaceTexture);
         }
 
