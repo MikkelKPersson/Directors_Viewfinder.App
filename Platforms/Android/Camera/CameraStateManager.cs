@@ -5,6 +5,9 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using Java.Lang;
+using Math = Java.Lang.Math;
+using Rect = Android.Graphics.Rect;
+using SizeF = Android.Util.SizeF;
 
 namespace Directors_Viewfinder.Platforms.Android.Camera
 {
@@ -248,6 +251,61 @@ namespace Directors_Viewfinder.Platforms.Android.Camera
             _captureSession?.Dispose();
             _captureSession = null;
         }
+
+        public void ApplyZoom(int focalLength)
+        {
+            lock (_lock)
+            {
+                if (_cameraDevice == null || _captureSession == null || _previewRequestBuilder == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    var characteristics = _cameraManager.GetCameraCharacteristics(_cameraDevice.Id);
+                    var sensorSize = (Rect)characteristics.Get(CameraCharacteristics.SensorInfoActiveArraySize);
+                    var maxDigitalZoom = (float)characteristics.Get(CameraCharacteristics.ScalerAvailableMaxDigitalZoom);
+
+                    // Calculate the zoom factor based on the desired focal length
+                    float zoomFactor = Math.Max(1.0f, Math.Min((focalLength / 24.0f), maxDigitalZoom)); // Assuming 24mm is the base focal length
+
+                    // Calculate the crop region
+                    int cropWidth = (int)(sensorSize.Width() / zoomFactor);
+                    int cropHeight = (int)(sensorSize.Height() / zoomFactor);
+                    int left = (sensorSize.Width() - cropWidth) / 2;
+                    int top = (sensorSize.Height() - cropHeight) / 2;
+
+                    if (left < 0 || top < 0 || cropWidth < 1 || cropHeight < 1)
+                    {
+                        Log.Error("CameraStateManager", "Invalid crop region calculated");
+                        return;
+                    }
+
+                    Rect cropRegion = new Rect(left, top, left + cropWidth, top + cropHeight);
+                    _previewRequestBuilder.Set(CaptureRequest.ScalerCropRegion, cropRegion);
+
+                    // Update the capture session
+                    _handler.Post(() =>
+                    {
+                        try
+                        {
+                            _captureSession.SetRepeatingRequest(_previewRequestBuilder.Build(), new CaptureCallback(), _handler);
+                        }
+                        catch (CameraAccessException ex)
+                        {
+                            Log.Error("CameraStateManager", $"Failed to set repeating request: {ex.Message}");
+                        }
+                    });
+                }
+                catch (CameraAccessException ex)
+                {
+                    Log.Error("CameraStateManager", $"Failed to apply zoom: {ex.Message}");
+                }
+            }
+        }
+
+
     }
 
     public class CaptureStateCallback : CameraCaptureSession.StateCallback

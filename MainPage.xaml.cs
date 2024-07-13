@@ -11,8 +11,8 @@ namespace Directors_Viewfinder
 #if __ANDROID__
         private CameraStateManager _cameraStateManager;
 #endif
-        private List<int> _focalLengths = new List<int> { 24, 35, 50, 85 };
-        private int _currentFocalLengthIndex = 0;
+        private List<int> _focalLengths = new List<int> { 11, 18, 24, 35, 50, 85 };
+        private int _currentFocalLengthIndex = 2;
 
         public MainPage()
         {
@@ -39,6 +39,9 @@ namespace Directors_Viewfinder
         {
             _currentFocalLengthIndex = Math.Max(0, Math.Min(_focalLengths.Count - 1, _currentFocalLengthIndex + direction));
             UpdateFocalLengthLabel();
+#if __ANDROID__
+            _cameraStateManager.ApplyZoom(_focalLengths[_currentFocalLengthIndex]);
+#endif
         }
 
         private void UpdateFocalLengthLabel()
